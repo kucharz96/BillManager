@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using BillManager.Models;
 using Microsoft.OpenApi.Models;
 using AutoMapper;
+using BillManager.Services.Interfaces;
+using BillManager.Services.Implementations;
 
 namespace BillManager
 {
@@ -30,6 +32,7 @@ namespace BillManager
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -55,6 +58,11 @@ namespace BillManager
                 });
             });
             services.AddAutoMapper(typeof(Startup));
+            services.AddTransient<IUsersService, UsersService>();
+            services.AddTransient<IBillsService, BillsService>();
+            services.AddTransient<IInformationService, InformationsService>();
+            services.AddLogging();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -76,6 +84,11 @@ namespace BillManager
             app.UseCookiePolicy();
 
             app.UseAuthentication();
+            app.UseCors(builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 
             app.UseMvc(routes =>
             {
